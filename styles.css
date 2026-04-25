@@ -131,10 +131,16 @@ canvas {
 
 .touch-controls {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 12px;
   touch-action: none;
+}
+
+.touch-cluster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .touch {
@@ -237,12 +243,26 @@ button:hover {
   }
 
   .touch-controls {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 8px;
     margin-top: 8px;
+    align-items: end;
+  }
+
+  .touch-cluster {
+    gap: 8px;
+  }
+
+  .movement-controls {
+    justify-self: start;
+  }
+
+  .action-controls {
+    justify-self: end;
   }
 
   .touch {
+    width: min(21vw, 78px);
     min-height: 56px;
     padding: 8px 4px;
     border-radius: 14px;

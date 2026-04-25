@@ -37,10 +37,14 @@
       </div>
       <canvas id="game" width="420" height="720" aria-label="Bird flying game"></canvas>
       <div class="touch-controls" aria-label="Touch controls">
-        <button class="touch" data-key="ArrowLeft" type="button" aria-label="Move left">Left</button>
-        <button class="touch accent" data-key=" " type="button" aria-label="Boost upward">Boost</button>
-        <button class="touch" data-key="ArrowRight" type="button" aria-label="Move right">Right</button>
-        <button class="touch rescue" data-action="rescue" type="button" aria-label="Rescue nearby companion">Rescue</button>
+        <div class="touch-cluster movement-controls">
+          <button class="touch" data-key="ArrowLeft" type="button" aria-label="Move left">Left</button>
+          <button class="touch" data-key="ArrowRight" type="button" aria-label="Move right">Right</button>
+        </div>
+        <div class="touch-cluster action-controls">
+          <button class="touch accent" data-key=" " type="button" aria-label="Boost upward">Boost</button>
+          <button class="touch rescue" data-action="rescue" type="button" aria-label="Rescue nearby companion">Rescue</button>
+        </div>
       </div>
       <div class="message" id="message">
         <h2>Fly Up to the Nest</h2>
