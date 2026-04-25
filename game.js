@@ -213,6 +213,10 @@ function rescueNearbyCage() {
 }
 
 function losePet() {
+  if (state.bird.invulnerable > 0) {
+    return;
+  }
+
   if (state.pets.length === 0) {
     hitBird();
     return;
