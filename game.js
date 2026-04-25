@@ -125,6 +125,19 @@ function startGame() {
   hideMessage();
 }
 
+function setFacingFromKey(key) {
+  if (!state.bird) {
+    return;
+  }
+
+  if (key === "ArrowLeft" || key === "a") {
+    state.bird.facing = -1;
+  }
+  if (key === "ArrowRight" || key === "d") {
+    state.bird.facing = 1;
+  }
+}
+
 function updateHud() {
   const climbed = Math.max(0, Math.round((worldHeight - state.bird.y - 110) / 12));
   heightLabel.textContent = `${climbed} m`;
@@ -626,6 +639,7 @@ function tick(timestamp) {
 window.addEventListener("keydown", (event) => {
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   state.keys.add(key);
+  setFacingFromKey(key);
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
     event.preventDefault();
   }
@@ -685,6 +699,7 @@ for (const button of touchButtons) {
       return;
     }
     state.keys.add(key);
+    setFacingFromKey(key);
   };
   const release = (event) => {
     event.preventDefault();
