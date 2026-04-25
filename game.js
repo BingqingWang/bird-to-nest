@@ -350,7 +350,7 @@ function updateHunter(dt) {
   const dx = birdCenter.x - hunter.aimX;
   const dy = birdCenter.y - hunter.aimY;
   const distance = Math.hypot(dx, dy);
-  const aimStep = Math.min(distance, 145 * dt);
+  const aimStep = Math.min(distance, 82 * dt);
 
   if (distance > 0) {
     hunter.aimX += (dx / distance) * aimStep;
