@@ -23,6 +23,8 @@ const state = {
   pets: [],
   bird: null,
   nest: null,
+  hunter: null,
+  shots: [],
 };
 
 function resetGame() {
@@ -37,6 +39,18 @@ function resetGame() {
   state.rescuedCount = 0;
   state.pets = [];
   state.nest = { x: 160, y: 110, width: 110, height: 56 };
+  state.hunter = {
+    x: 58,
+    y: worldHeight - 58,
+    width: 34,
+    height: 48,
+    aimX: 210,
+    aimY: worldHeight - 120,
+    aimRadius: 18,
+    lockTime: 0,
+    cooldown: 1.2,
+  };
+  state.shots = [];
   state.bird = {
     x: 210,
     y: worldHeight - 110,
@@ -330,6 +344,60 @@ function updatePets(dt) {
   });
 }
 
+function updateHunter(dt) {
+  const hunter = state.hunter;
+  const birdCenter = getBirdCenter();
+  const dx = birdCenter.x - hunter.aimX;
+  const dy = birdCenter.y - hunter.aimY;
+  const distance = Math.hypot(dx, dy);
+  const aimStep = Math.min(distance, 145 * dt);
+
+  if (distance > 0) {
+    hunter.aimX += (dx / distance) * aimStep;
+    hunter.aimY += (dy / distance) * aimStep;
+  }
+
+  if (hunter.cooldown > 0) {
+    hunter.cooldown -= dt;
+    hunter.lockTime = 0;
+    return;
+  }
+
+  const aimTouchingBird = (
+    hunter.aimX + hunter.aimRadius > state.bird.x &&
+    hunter.aimX - hunter.aimRadius < state.bird.x + state.bird.width &&
+    hunter.aimY + hunter.aimRadius > state.bird.y &&
+    hunter.aimY - hunter.aimRadius < state.bird.y + state.bird.height
+  );
+
+  if (!aimTouchingBird) {
+    hunter.lockTime = 0;
+    return;
+  }
+
+  hunter.lockTime += dt;
+  if (hunter.lockTime >= 2) {
+    state.shots.push({
+      fromX: hunter.x + hunter.width / 2,
+      fromY: hunter.y + 14,
+      toX: birdCenter.x,
+      toY: birdCenter.y,
+      life: 0.16,
+    });
+    hitBird();
+    hunter.lockTime = 0;
+    hunter.cooldown = 2.4;
+    hunter.aimX = hunter.x + hunter.width / 2;
+    hunter.aimY = hunter.y;
+  }
+}
+
+function updateShots(dt) {
+  state.shots = state.shots
+    .map((shot) => ({ ...shot, life: shot.life - dt }))
+    .filter((shot) => shot.life > 0);
+}
+
 function updateCamera() {
   const targetY = state.bird.y - canvas.height * 0.62;
   state.cameraY += (targetY - state.cameraY) * 0.08;
@@ -552,6 +620,62 @@ function drawNest() {
   ctx.fill();
 }
 
+function drawHunter() {
+  const hunter = state.hunter;
+  const screenY = hunter.y - state.cameraY;
+  if (screenY > canvas.height + 60 || screenY < -80) {
+    return;
+  }
+
+  ctx.save();
+  ctx.translate(hunter.x, screenY);
+
+  ctx.fillStyle = "#35513c";
+  ctx.fillRect(10, 18, 18, 28);
+
+  ctx.fillStyle = "#f1c28c";
+  ctx.beginPath();
+  ctx.arc(19, 10, 9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#6e4121";
+  ctx.fillRect(7, 3, 24, 6);
+  ctx.fillRect(11, -2, 16, 7);
+
+  ctx.strokeStyle = "#2b2b2b";
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(25, 22);
+  ctx.lineTo(47, 16);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#26342b";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(13, 45);
+  ctx.lineTo(7, 58);
+  ctx.moveTo(25, 45);
+  ctx.lineTo(31, 58);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawShots() {
+  for (const shot of state.shots) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, shot.life / 0.16);
+    ctx.strokeStyle = "#fff7dc";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(shot.fromX, shot.fromY - state.cameraY);
+    ctx.lineTo(shot.toX, shot.toY - state.cameraY);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 function drawBird() {
   const bird = state.bird;
   const screenY = bird.y - state.cameraY;
@@ -603,6 +727,7 @@ function drawBird() {
 function draw() {
   drawBackground();
   drawNest();
+  drawHunter();
   for (const branch of state.branches) {
     drawBranch(branch);
   }
@@ -612,6 +737,7 @@ function draw() {
   for (const eagle of state.eagles) {
     drawEagle(eagle);
   }
+  drawShots();
   drawPets();
   drawBird();
 }
@@ -628,6 +754,8 @@ function tick(timestamp) {
     updateEagles(dt);
     updateCages(dt);
     updatePets(dt);
+    updateHunter(dt);
+    updateShots(dt);
     updateCamera();
     updateHud();
   }
