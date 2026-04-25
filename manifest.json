@@ -1,0 +1,11 @@
+{
+  "name": "Bird to Nest",
+  "short_name": "Bird Nest",
+  "description": "A vertical flying game about reaching the nest and rescuing companions.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#bfe8ff",
+  "theme_color": "#88c9ff",
+  "orientation": "portrait",
+  "icons": []
+}

@@ -12,5 +12,6 @@ Open `index.html` in a browser, or publish the folder with GitHub Pages.
 
 - Move: Arrow keys or WASD
 - Boost: Space, ArrowUp, or W
+- Rescue: E, tap a nearby cage, or tap Rescue
 - Restart: R
-- Touch: on-screen left, boost, and right buttons
+- Touch: on-screen left, boost, right, and rescue buttons

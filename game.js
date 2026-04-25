@@ -132,6 +132,13 @@ function updateHud() {
   goalLabel.textContent = state.won ? "Home" : "Nest";
 }
 
+function getBirdCenter() {
+  return {
+    x: state.bird.x + state.bird.width / 2,
+    y: state.bird.y + state.bird.height / 2,
+  };
+}
+
 function overlap(a, b) {
   return (
     a.x < b.x + b.width &&
@@ -158,6 +165,50 @@ function hitBird() {
   }
 
   updateHud();
+}
+
+function rescueCage(cage) {
+  cage.rescued = true;
+  state.rescuedCount += 1;
+  state.pets.push({
+    id: cage.id,
+    x: cage.x + cage.width / 2,
+    y: cage.y + cage.height / 2,
+    phase: cage.pulse,
+  });
+  updateHud();
+}
+
+function getNearestRescuableCage(maxDistance = 120) {
+  const birdCenter = getBirdCenter();
+  let nearest = null;
+  let nearestDistance = maxDistance;
+
+  for (const cage of state.cages) {
+    if (cage.rescued || cage.lost) {
+      continue;
+    }
+
+    const cageCenterX = cage.x + cage.width / 2;
+    const cageCenterY = cage.y + cage.height / 2;
+    const distance = Math.hypot(birdCenter.x - cageCenterX, birdCenter.y - cageCenterY);
+    if (distance <= nearestDistance) {
+      nearest = cage;
+      nearestDistance = distance;
+    }
+  }
+
+  return nearest;
+}
+
+function rescueNearbyCage() {
+  const cage = getNearestRescuableCage();
+  if (!cage) {
+    return false;
+  }
+
+  rescueCage(cage);
+  return true;
 }
 
 function losePet() {
@@ -569,6 +620,9 @@ window.addEventListener("keydown", (event) => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
     event.preventDefault();
   }
+  if (key === "e") {
+    rescueNearbyCage();
+  }
   if (key === "r") {
     resetGame();
     startGame();
@@ -603,34 +657,31 @@ canvas.addEventListener("pointerdown", (event) => {
       continue;
     }
 
-    const dx = state.bird.x + state.bird.width / 2 - (cage.x + cage.width / 2);
-    const dy = state.bird.y + state.bird.height / 2 - (cage.y + cage.height / 2);
-    const withinRescueRange = Math.hypot(dx, dy) < 120;
-    if (!withinRescueRange) {
+    if (getNearestRescuableCage() !== cage) {
       continue;
     }
 
-    cage.rescued = true;
-    state.rescuedCount += 1;
-    state.pets.push({
-      id: cage.id,
-      x: cage.x + cage.width / 2,
-      y: cage.y + cage.height / 2,
-      phase: cage.pulse,
-    });
-    updateHud();
+    rescueCage(cage);
     break;
   }
 });
 
 for (const button of touchButtons) {
   const key = button.dataset.key;
+  const action = button.dataset.action;
   const press = (event) => {
     event.preventDefault();
+    if (action === "rescue") {
+      rescueNearbyCage();
+      return;
+    }
     state.keys.add(key);
   };
   const release = (event) => {
     event.preventDefault();
+    if (action === "rescue") {
+      return;
+    }
     state.keys.delete(key);
   };
 
