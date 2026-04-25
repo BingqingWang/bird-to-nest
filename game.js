@@ -44,6 +44,7 @@ function resetGame() {
     height: 24,
     vx: 0,
     vy: 0,
+    facing: 1,
     lives: 3,
     invulnerable: 0,
   };
@@ -232,6 +233,9 @@ function updateBird(dt) {
   const boosting = state.keys.has(" ") || state.keys.has("ArrowUp") || state.keys.has("w");
 
   bird.vx = horizontal * 180;
+  if (horizontal !== 0) {
+    bird.facing = horizontal;
+  }
   bird.vy += boosting ? -410 * dt : 260 * dt;
   bird.vy = Math.max(-220, Math.min(220, bird.vy));
 
@@ -541,6 +545,7 @@ function drawBird() {
 
   ctx.save();
   ctx.translate(bird.x + bird.width / 2, screenY + bird.height / 2);
+  ctx.scale(bird.facing, 1);
 
   ctx.fillStyle = "#f8d66b";
   ctx.beginPath();
