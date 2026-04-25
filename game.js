@@ -114,11 +114,11 @@ function createCages() {
   ];
 }
 
-function showMessage(title, body, showButton = false) {
+function showMessage(title, body, showButton = false, buttonText = "Start Game") {
   messageBox.innerHTML = `
     <h2>${title}</h2>
     <p>${body}</p>
-    ${showButton ? '<button id="start-button" type="button">Start Game</button>' : ""}
+    ${showButton ? `<button id="start-button" type="button">${buttonText}</button>` : ""}
   `;
   messageBox.classList.remove("hidden");
   const button = document.getElementById("start-button");
@@ -189,7 +189,7 @@ function hitBird() {
   if (state.bird.lives <= 0) {
     state.running = false;
     state.lost = true;
-    showMessage("The Forest Won This Round", "Press R to try again and find a safer path upward.");
+    showMessage("The Forest Won This Round", "Try again and find a safer path upward.", true, "Play Again");
   }
 
   updateHud();
@@ -305,7 +305,7 @@ function updateBird(dt) {
     state.running = false;
     state.won = true;
     updateHud();
-    showMessage("Nest Reached", "You made it home. Press R to fly again.");
+    showMessage("Nest Reached", "You made it home. The egg is safe in the nest.", true, "Play Again");
   }
 }
 
@@ -618,6 +618,20 @@ function drawNest() {
   ctx.beginPath();
   ctx.ellipse(x + width / 2, screenY + height / 2, width / 2 - 12, 10, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  if (state.won) {
+    ctx.fillStyle = "#fff7dc";
+    ctx.beginPath();
+    ctx.ellipse(x + width / 2, screenY + height / 2 - 8, 14, 19, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(23, 48, 63, 0.18)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x + width / 2 - 4, screenY + height / 2 - 12, 3, 0, Math.PI * 2);
+    ctx.arc(x + width / 2 + 5, screenY + height / 2 - 2, 2.5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
 }
 
 function drawHunter() {
