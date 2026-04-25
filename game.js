@@ -676,6 +676,36 @@ function drawShots() {
   }
 }
 
+function drawAimer() {
+  const hunter = state.hunter;
+  const screenY = hunter.aimY - state.cameraY;
+  if (screenY > canvas.height + 40 || screenY < -40) {
+    return;
+  }
+
+  const danger = Math.min(1, hunter.lockTime / 2);
+  ctx.save();
+  ctx.translate(hunter.aimX, screenY);
+  ctx.globalAlpha = 0.38 + danger * 0.44;
+  ctx.strokeStyle = danger > 0.65 ? "#ef5562" : "#fff7dc";
+  ctx.lineWidth = 2 + danger * 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, hunter.aimRadius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-hunter.aimRadius - 6, 0);
+  ctx.lineTo(-6, 0);
+  ctx.moveTo(6, 0);
+  ctx.lineTo(hunter.aimRadius + 6, 0);
+  ctx.moveTo(0, -hunter.aimRadius - 6);
+  ctx.lineTo(0, -6);
+  ctx.moveTo(0, 6);
+  ctx.lineTo(0, hunter.aimRadius + 6);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawBird() {
   const bird = state.bird;
   const screenY = bird.y - state.cameraY;
@@ -737,6 +767,7 @@ function draw() {
   for (const eagle of state.eagles) {
     drawEagle(eagle);
   }
+  drawAimer();
   drawShots();
   drawPets();
   drawBird();
