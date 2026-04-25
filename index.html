@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bird to Nest</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">Playable Prototype</p>
+      <h1>Bird to Nest</h1>
+      <p class="summary">
+        Help the little bird rise from the forest floor to its nest high in the canopy.
+        Dodge eagles, weave through branches, and keep climbing.
+      </p>
+      <div class="controls">
+        <span><strong>Move</strong> Arrow keys or WASD</span>
+        <span><strong>Boost</strong> Space</span>
+        <span><strong>Restart</strong> R</span>
+      </div>
+    </section>
+
+    <section class="game-panel">
+      <div class="hud">
+        <div class="pill">Height <span id="height">0 m</span></div>
+        <div class="pill">Lives <span id="lives">3</span></div>
+        <div class="pill">Rescued <span id="rescued">0/0</span></div>
+        <div class="pill">Goal <span id="goal">Nest</span></div>
+      </div>
+      <canvas id="game" width="420" height="720" aria-label="Bird flying game"></canvas>
+      <div class="touch-controls" aria-label="Touch controls">
+        <button class="touch" data-key="ArrowLeft" type="button">Left</button>
+        <button class="touch accent" data-key=" " type="button">Boost</button>
+        <button class="touch" data-key="ArrowRight" type="button">Right</button>
+      </div>
+      <div class="message" id="message">
+        <h2>Fly Up to the Nest</h2>
+        <p>Use quick boosts to slip past branches and swooping eagles.</p>
+        <button id="start-button" type="button">Start Game</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
