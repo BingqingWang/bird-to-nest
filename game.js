@@ -179,7 +179,7 @@ function rescueCage(cage) {
   updateHud();
 }
 
-function getNearestRescuableCage(maxDistance = 120) {
+function getNearestRescuableCage(maxDistance = 160) {
   const birdCenter = getBirdCenter();
   let nearest = null;
   let nearestDistance = maxDistance;
@@ -689,6 +689,11 @@ for (const button of touchButtons) {
   button.addEventListener("pointerup", release);
   button.addEventListener("pointerleave", release);
   button.addEventListener("pointercancel", release);
+  button.addEventListener("touchstart", press, { passive: false });
+  button.addEventListener("touchend", release, { passive: false });
+  button.addEventListener("touchcancel", release, { passive: false });
+  button.addEventListener("mousedown", press);
+  button.addEventListener("mouseup", release);
 }
 
 resetGame();
