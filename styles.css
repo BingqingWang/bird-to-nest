@@ -163,6 +163,11 @@ canvas {
   background: #aeeccf;
 }
 
+.movement-controls .touch {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
 .message.hidden {
   display: none;
 }
