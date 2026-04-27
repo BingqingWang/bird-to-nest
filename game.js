@@ -212,6 +212,7 @@ function rescueCage(cage) {
     x: cage.x + cage.width / 2,
     y: cage.y + cage.height / 2,
     phase: cage.pulse,
+    facing: 1,
   });
   updateHud();
 }
@@ -355,9 +356,14 @@ function updatePets(dt) {
   state.pets.forEach((pet, index) => {
     const targetX = state.bird.x - 30 - index * 20 + Math.sin(pet.phase) * 16;
     const targetY = state.bird.y + 8 + index * 12 + Math.cos(pet.phase * 1.3) * 10;
+    const previousX = pet.x;
     pet.phase += dt * 5;
     pet.x += (targetX - pet.x) * 0.09;
     pet.y += (targetY - pet.y) * 0.09;
+    const movedX = pet.x - previousX;
+    if (Math.abs(movedX) > 0.05) {
+      pet.facing = movedX < 0 ? -1 : 1;
+    }
   });
 }
 
@@ -651,7 +657,7 @@ function drawHummingbird(x, y, phase = 0, scale = 1) {
 function drawPets() {
   for (const pet of state.pets) {
     const screenY = pet.y - state.cameraY;
-    drawHummingbird(pet.x, screenY, pet.phase, 0.95);
+    drawHummingbird(pet.x, screenY, pet.phase, pet.facing * 0.95);
   }
 }
 
