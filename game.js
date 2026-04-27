@@ -367,8 +367,14 @@ function updateHunter(dt) {
 
   hunter.thinkTimer -= dt;
   if (hunter.thinkTimer <= 0) {
-    hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 120;
-    hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 150;
+    const eagleTarget = state.eagles.find((eagle) => !eagle.destroyed);
+    if (eagleTarget) {
+      hunter.targetX = eagleTarget.x + eagleTarget.width / 2 + (Math.random() - 0.5) * 70;
+      hunter.targetY = eagleTarget.y + eagleTarget.height / 2 + (Math.random() - 0.5) * 70;
+    } else {
+      hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 120;
+      hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 150;
+    }
     hunter.targetX = Math.max(0, Math.min(canvas.width, hunter.targetX));
     hunter.targetY = Math.max(0, Math.min(worldHeight, hunter.targetY));
     hunter.thinkTimer = 0.9 + Math.random() * 0.75;
@@ -433,6 +439,24 @@ function getHunterAimTarget() {
 
 function fireHunterShot(target) {
   const hunter = state.hunter;
+  if (target.type === "eagle") {
+    for (const eagle of state.eagles) {
+      if (eagle.destroyed) {
+        continue;
+      }
+
+      state.shots.push({
+        fromX: hunter.x + hunter.width / 2,
+        fromY: hunter.y + 14,
+        toX: eagle.x + eagle.width / 2,
+        toY: eagle.y + eagle.height / 2,
+        life: 0.16,
+      });
+      eagle.destroyed = true;
+    }
+    return;
+  }
+
   const targetX = target.type === "bird"
     ? state.bird.x + state.bird.width / 2
     : target.item.x + target.item.width / 2;
@@ -451,7 +475,7 @@ function fireHunterShot(target) {
   if (target.type === "bird") {
     hitBird();
   }
-  if (target.type === "eagle" || target.type === "branch") {
+  if (target.type === "branch") {
     target.item.destroyed = true;
   }
 }
