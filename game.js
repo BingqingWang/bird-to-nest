@@ -108,6 +108,23 @@ function createEagles() {
       bob: Math.random() * Math.PI * 2,
     });
   }
+
+  for (let i = 0; i < 6; i += 1) {
+    const y = 1450 - i * 210;
+    const fromLeft = i % 2 !== 0;
+    eagles.push({
+      x: fromLeft ? -90 : canvas.width + 90,
+      y,
+      baseY: y,
+      width: 44,
+      height: 24,
+      vx: fromLeft ? 132 + i * 10 : -132 - i * 10,
+      vy: i % 2 === 0 ? 86 : -92,
+      flightBand: 120 + (i % 3) * 30,
+      bob: Math.random() * Math.PI * 2,
+    });
+  }
+
   return eagles;
 }
 
