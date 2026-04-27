@@ -367,8 +367,10 @@ function updateHunter(dt) {
 
   hunter.thinkTimer -= dt;
   if (hunter.thinkTimer <= 0) {
-    const eagleTarget = state.eagles.find((eagle) => !eagle.destroyed);
-    if (eagleTarget) {
+    const liveEagles = state.eagles.filter((eagle) => !eagle.destroyed);
+    const eagleTarget = liveEagles[Math.floor(Math.random() * liveEagles.length)];
+    const aimAtEagle = eagleTarget && Math.random() < 0.5;
+    if (aimAtEagle) {
       hunter.targetX = eagleTarget.x + eagleTarget.width / 2 + (Math.random() - 0.5) * 70;
       hunter.targetY = eagleTarget.y + eagleTarget.height / 2 + (Math.random() - 0.5) * 70;
     } else {
@@ -407,8 +409,6 @@ function updateHunter(dt) {
     fireHunterShot(aimTarget);
     hunter.lockTime = 0;
     hunter.cooldown = 2.4;
-    hunter.aimX = hunter.x + hunter.width / 2;
-    hunter.aimY = hunter.y;
   }
 }
 
