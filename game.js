@@ -748,6 +748,43 @@ function drawNest() {
   const { x, y, width, height } = state.nest;
   const screenY = y - state.cameraY;
 
+  ctx.save();
+  ctx.strokeStyle = "#6e4121";
+  ctx.lineWidth = 20;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(x + width / 2 + 42, screenY + height + 170);
+  ctx.lineTo(x + width / 2 + 35, screenY + height + 44);
+  ctx.stroke();
+
+  ctx.lineWidth = 14;
+  ctx.beginPath();
+  ctx.moveTo(x + width / 2 + 34, screenY + height + 62);
+  ctx.lineTo(x + width / 2 - 8, screenY + height / 2 + 18);
+  ctx.stroke();
+
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(x + width / 2 + 26, screenY + height + 32);
+  ctx.lineTo(x + width / 2 + 88, screenY + height / 2 + 6);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(77, 156, 82, 0.82)";
+  for (let i = 0; i < 7; i += 1) {
+    ctx.beginPath();
+    ctx.ellipse(
+      x + width / 2 + 72 + Math.sin(i) * 38,
+      screenY + 26 + i * 9,
+      24,
+      12,
+      Math.sin(i) * 0.8,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+  }
+  ctx.restore();
+
   ctx.fillStyle = "#91613d";
   for (let i = 0; i < 6; i += 1) {
     ctx.beginPath();
