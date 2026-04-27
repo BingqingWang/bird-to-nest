@@ -49,6 +49,9 @@ function resetGame() {
     aimRadius: 18,
     lockTime: 0,
     cooldown: 1.2,
+    targetX: 210,
+    targetY: worldHeight - 120,
+    thinkTimer: 0.5,
   };
   state.shots = [];
   state.bird = {
@@ -347,10 +350,20 @@ function updatePets(dt) {
 function updateHunter(dt) {
   const hunter = state.hunter;
   const birdCenter = getBirdCenter();
-  const dx = birdCenter.x - hunter.aimX;
-  const dy = birdCenter.y - hunter.aimY;
+
+  hunter.thinkTimer -= dt;
+  if (hunter.thinkTimer <= 0) {
+    hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 120;
+    hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 150;
+    hunter.targetX = Math.max(0, Math.min(canvas.width, hunter.targetX));
+    hunter.targetY = Math.max(0, Math.min(worldHeight, hunter.targetY));
+    hunter.thinkTimer = 0.9 + Math.random() * 0.75;
+  }
+
+  const dx = hunter.targetX - hunter.aimX;
+  const dy = hunter.targetY - hunter.aimY;
   const distance = Math.hypot(dx, dy);
-  const aimStep = Math.min(distance, 82 * dt);
+  const aimStep = Math.min(distance, 64 * dt);
 
   if (distance > 0) {
     hunter.aimX += (dx / distance) * aimStep;
