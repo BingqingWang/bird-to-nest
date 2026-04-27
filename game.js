@@ -99,9 +99,12 @@ function createEagles() {
     eagles.push({
       x: fromLeft ? -40 : canvas.width + 40,
       y,
+      baseY: y,
       width: 44,
       height: 24,
       vx: fromLeft ? 90 + i * 8 : -90 - i * 8,
+      vy: i % 3 === 0 ? 34 : i % 4 === 0 ? -28 : 0,
+      flightBand: 85 + (i % 3) * 20,
       bob: Math.random() * Math.PI * 2,
     });
   }
@@ -331,13 +334,20 @@ function updateEagles(dt) {
 
     eagle.bob += dt * 3;
     eagle.x += eagle.vx * dt;
-    eagle.y += Math.sin(eagle.bob) * 18 * dt;
+    eagle.y += eagle.vy * dt + Math.sin(eagle.bob) * 18 * dt;
+
+    if (eagle.vy !== 0 && Math.abs(eagle.y - eagle.baseY) > eagle.flightBand) {
+      eagle.vy *= -1;
+      eagle.y = eagle.baseY + Math.sign(eagle.y - eagle.baseY) * eagle.flightBand;
+    }
 
     if (eagle.vx > 0 && eagle.x > canvas.width + 60) {
       eagle.x = -80;
+      eagle.y = eagle.baseY - eagle.flightBand * 0.5;
     }
     if (eagle.vx < 0 && eagle.x < -80) {
       eagle.x = canvas.width + 60;
+      eagle.y = eagle.baseY + eagle.flightBand * 0.5;
     }
 
     if (overlap(state.bird, eagle)) {
