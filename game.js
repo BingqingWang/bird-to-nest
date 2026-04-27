@@ -103,8 +103,8 @@ function createEagles() {
       width: 44,
       height: 24,
       vx: fromLeft ? 90 + i * 8 : -90 - i * 8,
-      vy: i % 3 === 0 ? 34 : i % 4 === 0 ? -28 : 0,
-      flightBand: 85 + (i % 3) * 20,
+      vy: i % 3 === 0 ? 92 : i % 4 === 0 ? -78 : 0,
+      flightBand: 150 + (i % 3) * 36,
       bob: Math.random() * Math.PI * 2,
     });
   }
