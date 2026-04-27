@@ -179,6 +179,12 @@ function overlap(a, b) {
   );
 }
 
+function circleOverlapsRect(circleX, circleY, radius, rect) {
+  const closestX = Math.max(rect.x, Math.min(circleX, rect.x + rect.width));
+  const closestY = Math.max(rect.y, Math.min(circleY, rect.y + rect.height));
+  return Math.hypot(circleX - closestX, circleY - closestY) <= radius;
+}
+
 function hitBird() {
   if (state.bird.invulnerable > 0) {
     return;
@@ -281,6 +287,10 @@ function updateBird(dt) {
   bird.y = Math.max(0, Math.min(worldHeight - bird.height, bird.y));
 
   for (const branch of state.branches) {
+    if (branch.destroyed) {
+      continue;
+    }
+
     if (!overlap(bird, branch)) {
       continue;
     }
@@ -314,6 +324,10 @@ function updateBird(dt) {
 
 function updateEagles(dt) {
   for (const eagle of state.eagles) {
+    if (eagle.destroyed) {
+      continue;
+    }
+
     eagle.bob += dt * 3;
     eagle.x += eagle.vx * dt;
     eagle.y += Math.sin(eagle.bob) * 18 * dt;
@@ -376,32 +390,69 @@ function updateHunter(dt) {
     return;
   }
 
-  const aimTouchingBird = (
-    hunter.aimX + hunter.aimRadius > state.bird.x &&
-    hunter.aimX - hunter.aimRadius < state.bird.x + state.bird.width &&
-    hunter.aimY + hunter.aimRadius > state.bird.y &&
-    hunter.aimY - hunter.aimRadius < state.bird.y + state.bird.height
-  );
-
-  if (!aimTouchingBird) {
+  const aimTarget = getHunterAimTarget();
+  if (!aimTarget) {
     hunter.lockTime = 0;
     return;
   }
 
   hunter.lockTime += dt;
   if (hunter.lockTime >= 2) {
-    state.shots.push({
-      fromX: hunter.x + hunter.width / 2,
-      fromY: hunter.y + 14,
-      toX: birdCenter.x,
-      toY: birdCenter.y,
-      life: 0.16,
-    });
-    hitBird();
+    fireHunterShot(aimTarget);
     hunter.lockTime = 0;
     hunter.cooldown = 2.4;
     hunter.aimX = hunter.x + hunter.width / 2;
     hunter.aimY = hunter.y;
+  }
+}
+
+function getHunterAimTarget() {
+  const hunter = state.hunter;
+  const eagle = state.eagles.find((item) => (
+    !item.destroyed &&
+    circleOverlapsRect(hunter.aimX, hunter.aimY, hunter.aimRadius, item)
+  ));
+  if (eagle) {
+    return { type: "eagle", item: eagle };
+  }
+
+  const branch = state.branches.find((item) => (
+    !item.destroyed &&
+    circleOverlapsRect(hunter.aimX, hunter.aimY, hunter.aimRadius, item)
+  ));
+  if (branch) {
+    return { type: "branch", item: branch };
+  }
+
+  if (circleOverlapsRect(hunter.aimX, hunter.aimY, hunter.aimRadius, state.bird)) {
+    return { type: "bird", item: state.bird };
+  }
+
+  return null;
+}
+
+function fireHunterShot(target) {
+  const hunter = state.hunter;
+  const targetX = target.type === "bird"
+    ? state.bird.x + state.bird.width / 2
+    : target.item.x + target.item.width / 2;
+  const targetY = target.type === "bird"
+    ? state.bird.y + state.bird.height / 2
+    : target.item.y + target.item.height / 2;
+
+  state.shots.push({
+    fromX: hunter.x + hunter.width / 2,
+    fromY: hunter.y + 14,
+    toX: targetX,
+    toY: targetY,
+    life: 0.16,
+  });
+
+  if (target.type === "bird") {
+    hitBird();
+  }
+  if (target.type === "eagle" || target.type === "branch") {
+    target.item.destroyed = true;
   }
 }
 
@@ -440,6 +491,10 @@ function drawBackground() {
 }
 
 function drawBranch(branch) {
+  if (branch.destroyed) {
+    return;
+  }
+
   const screenY = branch.y - state.cameraY;
   if (screenY > canvas.height || screenY + branch.height < 0) {
     return;
@@ -569,6 +624,10 @@ function drawPets() {
 }
 
 function drawEagle(eagle) {
+  if (eagle.destroyed) {
+    return;
+  }
+
   const screenY = eagle.y - state.cameraY;
   if (screenY > canvas.height + 40 || screenY < -60) {
     return;
