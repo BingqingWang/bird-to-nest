@@ -400,8 +400,8 @@ function updateHunter(dt) {
       hunter.targetX = eagleTarget.x + eagleTarget.width / 2 + (Math.random() - 0.5) * 46;
       hunter.targetY = eagleTarget.y + eagleTarget.height / 2 + (Math.random() - 0.5) * 46;
     } else {
-      hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 76;
-      hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 96;
+      hunter.targetX = birdCenter.x;
+      hunter.targetY = birdCenter.y;
     }
     hunter.targetX = Math.max(0, Math.min(canvas.width, hunter.targetX));
     hunter.targetY = Math.max(0, Math.min(worldHeight, hunter.targetY));
