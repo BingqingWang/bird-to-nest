@@ -267,7 +267,9 @@ function losePet() {
   if (cage) {
     cage.lost = true;
   }
+  state.rescuedCount = Math.max(0, state.rescuedCount - 1);
   state.bird.invulnerable = Math.max(state.bird.invulnerable, 1.1);
+  updateHud();
 }
 
 function updateBird(dt) {
