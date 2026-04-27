@@ -395,24 +395,24 @@ function updateHunter(dt) {
       return Math.hypot(eagleCenterX - birdCenter.x, eagleCenterY - birdCenter.y) < 520;
     });
     const eagleTarget = liveEagles[Math.floor(Math.random() * liveEagles.length)];
-    const aimAtEagle = eagleTarget && Math.random() < 0.5;
+    const aimAtEagle = eagleTarget && Math.random() < 0.35;
     if (aimAtEagle) {
-      hunter.targetX = eagleTarget.x + eagleTarget.width / 2 + (Math.random() - 0.5) * 70;
-      hunter.targetY = eagleTarget.y + eagleTarget.height / 2 + (Math.random() - 0.5) * 70;
+      hunter.targetX = eagleTarget.x + eagleTarget.width / 2 + (Math.random() - 0.5) * 46;
+      hunter.targetY = eagleTarget.y + eagleTarget.height / 2 + (Math.random() - 0.5) * 46;
     } else {
-      hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 120;
-      hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 150;
+      hunter.targetX = birdCenter.x + (Math.random() - 0.5) * 76;
+      hunter.targetY = birdCenter.y + (Math.random() - 0.5) * 96;
     }
     hunter.targetX = Math.max(0, Math.min(canvas.width, hunter.targetX));
     hunter.targetY = Math.max(0, Math.min(worldHeight, hunter.targetY));
-    hunter.thinkTimer = 0.9 + Math.random() * 0.75;
+    hunter.thinkTimer = 0.55 + Math.random() * 0.45;
   }
 
   const dx = hunter.targetX - hunter.aimX;
   const dy = hunter.targetY - hunter.aimY;
   const distance = Math.hypot(dx, dy);
   const birdAimDistance = Math.hypot(birdCenter.x - hunter.aimX, birdCenter.y - hunter.aimY);
-  const catchUpSpeed = birdAimDistance > 620 ? 190 : birdAimDistance > 380 ? 120 : 64;
+  const catchUpSpeed = birdAimDistance > 620 ? 220 : birdAimDistance > 380 ? 145 : 84;
   const aimStep = Math.min(distance, catchUpSpeed * dt);
 
   if (distance > 0) {
