@@ -242,11 +242,26 @@ function choosePasswordLetter(index, letter) {
   const correct = nestPassword.every((expected, slotIndex) => state.passwordInput[slotIndex] === expected);
   if (!correct) {
     state.passwordInput = [];
-    showPasswordPrompt("That was not the password. Remember the peacock on the ground.");
+    peckBirdAtNest();
     return;
   }
 
   completeGame();
+}
+
+function peckBirdAtNest() {
+  state.bird.lives -= 1;
+  state.bird.invulnerable = 1.2;
+  updateHud();
+
+  if (state.bird.lives <= 0) {
+    state.awaitingPassword = false;
+    state.lost = true;
+    showMessage("Pecked Away From Home", "The nest bird was too mad. Try again and remember the peacock.", true, "Play Again");
+    return;
+  }
+
+  showPasswordPrompt("Wrong password. The nest bird pecked you. Try again.");
 }
 
 function completeGame() {
