@@ -15,6 +15,7 @@ const state = {
   won: false,
   lost: false,
   awaitingPassword: false,
+  difficulty: "medium",
   cameraY: 0,
   keys: new Set(),
   lastTime: 0,
@@ -98,7 +99,13 @@ function createBranches() {
 
 function createEagles() {
   const eagles = [];
-  for (let i = 0; i < 10; i += 1) {
+  const settings = {
+    easy: { regular: 5, high: 2 },
+    medium: { regular: 10, high: 6 },
+    hard: { regular: 14, high: 11 },
+  }[state.difficulty];
+
+  for (let i = 0; i < settings.regular; i += 1) {
     const y = worldHeight - 500 - i * 360;
     const fromLeft = i % 2 === 0;
     eagles.push({
@@ -114,8 +121,8 @@ function createEagles() {
     });
   }
 
-  for (let i = 0; i < 6; i += 1) {
-    const y = 1450 - i * 210;
+  for (let i = 0; i < settings.high; i += 1) {
+    const y = Math.max(245, 1450 - i * 150);
     const fromLeft = i % 2 !== 0;
     eagles.push({
       x: fromLeft ? -90 : canvas.width + 90,
@@ -146,12 +153,48 @@ function showMessage(title, body, showButton = false, buttonText = "Start Game")
   messageBox.innerHTML = `
     <h2>${title}</h2>
     <p>${body}</p>
+    ${showButton ? createDifficultySelector() : ""}
     ${showButton ? `<button id="start-button" type="button">${buttonText}</button>` : ""}
   `;
   messageBox.classList.remove("hidden");
+
+  for (const button of messageBox.querySelectorAll(".difficulty-option")) {
+    button.addEventListener("click", () => {
+      setDifficulty(button.dataset.difficulty);
+    });
+  }
+
   const button = document.getElementById("start-button");
   if (button) {
     button.addEventListener("click", startGame, { once: true });
+  }
+}
+
+function createDifficultySelector() {
+  const labels = [
+    ["easy", "Easy"],
+    ["medium", "Medium"],
+    ["hard", "Hard"],
+  ];
+
+  return `
+    <div class="difficulty-picker" aria-label="Difficulty">
+      ${labels.map(([value, label]) => (
+        `<button class="difficulty-option${state.difficulty === value ? " selected" : ""}" data-difficulty="${value}" type="button">${label}</button>`
+      )).join("")}
+    </div>
+  `;
+}
+
+function setDifficulty(difficulty) {
+  state.difficulty = difficulty;
+  for (const button of messageBox.querySelectorAll(".difficulty-option")) {
+    button.classList.toggle("selected", button.dataset.difficulty === difficulty);
+  }
+
+  if (!state.running && !state.won && !state.lost && !state.awaitingPassword) {
+    state.eagles = createEagles();
+    draw();
   }
 }
 

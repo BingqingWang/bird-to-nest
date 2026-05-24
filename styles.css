@@ -180,6 +180,24 @@ canvas {
   display: none;
 }
 
+.difficulty-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, 1fr));
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+.difficulty-option {
+  padding: 10px 8px;
+  border-radius: 14px;
+  background: rgba(255, 247, 220, 0.84);
+}
+
+.difficulty-option.selected {
+  background: #aeeccf;
+  box-shadow: inset 0 0 0 2px rgba(23, 48, 63, 0.22);
+}
+
 .password-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(56px, 1fr));
