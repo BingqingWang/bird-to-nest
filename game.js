@@ -178,10 +178,13 @@ function createDifficultySelector() {
   ];
 
   return `
-    <div class="difficulty-picker" aria-label="Difficulty">
-      ${labels.map(([value, label]) => (
-        `<button class="difficulty-option${state.difficulty === value ? " selected" : ""}" data-difficulty="${value}" type="button">${label}</button>`
-      )).join("")}
+    <div class="difficulty-panel">
+      <p class="difficulty-title">Choose Difficulty</p>
+      <div class="difficulty-picker" aria-label="Difficulty">
+        ${labels.map(([value, label]) => (
+          `<button class="difficulty-option${state.difficulty === value ? " selected" : ""}" data-difficulty="${value}" type="button">${label}</button>`
+        )).join("")}
+      </div>
     </div>
   `;
 }
