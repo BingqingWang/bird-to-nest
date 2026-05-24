@@ -9,10 +9,12 @@ const messageBox = document.getElementById("message");
 const touchButtons = document.querySelectorAll(".touch");
 
 const worldHeight = 4600;
+const nestPassword = ["A", "B", "B", "D"];
 const state = {
   running: false,
   won: false,
   lost: false,
+  awaitingPassword: false,
   cameraY: 0,
   keys: new Set(),
   lastTime: 0,
@@ -25,12 +27,14 @@ const state = {
   nest: null,
   hunter: null,
   shots: [],
+  passwordInput: [],
 };
 
 function resetGame() {
   state.running = false;
   state.won = false;
   state.lost = false;
+  state.awaitingPassword = false;
   state.cameraY = worldHeight - canvas.height;
   state.lastTime = 0;
   state.branches = createBranches();
@@ -54,6 +58,7 @@ function resetGame() {
     thinkTimer: 0.5,
   };
   state.shots = [];
+  state.passwordInput = [];
   state.bird = {
     x: 210,
     y: worldHeight - 110,
@@ -150,6 +155,61 @@ function showMessage(title, body, showButton = false, buttonText = "Start Game")
   }
 }
 
+function showPasswordPrompt(errorText = "") {
+  const slots = nestPassword.map((_, index) => {
+    const selected = state.passwordInput[index] || "?";
+    const options = ["A", "B", "C", "D"].map((letter) => (
+      `<button class="password-option${state.passwordInput[index] === letter ? " selected" : ""}" data-index="${index}" data-letter="${letter}" type="button">${letter}</button>`
+    )).join("");
+
+    return `
+      <div class="password-slot">
+        <span>${selected}</span>
+        <div class="password-options">${options}</div>
+      </div>
+    `;
+  }).join("");
+
+  messageBox.innerHTML = `
+    <h2>Nest Password</h2>
+    <p>The nest bird asks for the four-letter password.</p>
+    <div class="password-grid">${slots}</div>
+    ${errorText ? `<p class="password-error">${errorText}</p>` : ""}
+  `;
+  messageBox.classList.remove("hidden");
+
+  for (const button of messageBox.querySelectorAll(".password-option")) {
+    button.addEventListener("click", () => {
+      choosePasswordLetter(Number(button.dataset.index), button.dataset.letter);
+    });
+  }
+}
+
+function choosePasswordLetter(index, letter) {
+  state.passwordInput[index] = letter;
+  const complete = nestPassword.every((_, slotIndex) => state.passwordInput[slotIndex]);
+  if (!complete) {
+    showPasswordPrompt();
+    return;
+  }
+
+  const correct = nestPassword.every((expected, slotIndex) => state.passwordInput[slotIndex] === expected);
+  if (!correct) {
+    state.passwordInput = [];
+    showPasswordPrompt("That was not the password. Remember the peacock on the ground.");
+    return;
+  }
+
+  completeGame();
+}
+
+function completeGame() {
+  state.awaitingPassword = false;
+  state.won = true;
+  updateHud();
+  showMessage("Nest Reached", "You gave the password. The egg is safe in the nest.", true, "Play Again");
+}
+
 function hideMessage() {
   messageBox.classList.add("hidden");
 }
@@ -158,6 +218,7 @@ function startGame() {
   if (state.won || state.lost) {
     resetGame();
   }
+  state.awaitingPassword = false;
   state.running = true;
   hideMessage();
 }
@@ -180,7 +241,7 @@ function updateHud() {
   heightLabel.textContent = `${climbed} m`;
   livesLabel.textContent = String(state.bird.lives);
   rescuedLabel.textContent = `${state.rescuedCount}/${state.cages.length}`;
-  goalLabel.textContent = state.won ? "Home" : "Nest";
+  goalLabel.textContent = state.awaitingPassword ? "Password" : state.won ? "Home" : "Nest";
 }
 
 function getBirdCenter() {
@@ -337,11 +398,12 @@ function updateBird(dt) {
     bird.invulnerable -= dt;
   }
 
-  if (overlap(bird, state.nest)) {
+  if (!state.awaitingPassword && !state.won && overlap(bird, state.nest)) {
     state.running = false;
-    state.won = true;
+    state.awaitingPassword = true;
+    state.passwordInput = [];
     updateHud();
-    showMessage("Nest Reached", "You made it home. The egg is safe in the nest.", true, "Play Again");
+    showPasswordPrompt();
   }
 }
 
@@ -797,6 +859,10 @@ function drawNest() {
   ctx.ellipse(x + width / 2, screenY + height / 2, width / 2 - 12, 10, 0, 0, Math.PI * 2);
   ctx.fill();
 
+  if (!state.won) {
+    drawNestBird(x + width + 24, screenY + height / 2 - 8);
+  }
+
   if (state.won) {
     ctx.fillStyle = "#fff7dc";
     ctx.beginPath();
@@ -810,6 +876,49 @@ function drawNest() {
     ctx.arc(x + width / 2 + 5, screenY + height / 2 - 2, 2.5, 0, Math.PI * 2);
     ctx.stroke();
   }
+}
+
+function drawNestBird(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  ctx.fillStyle = "#8d6fd1";
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 13, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#6b54b8";
+  ctx.beginPath();
+  ctx.arc(10, -3, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f0c64e";
+  ctx.beginPath();
+  ctx.moveTo(17, -2);
+  ctx.lineTo(28, 1);
+  ctx.lineTo(17, 5);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#1d1d1d";
+  ctx.beginPath();
+  ctx.arc(12, -5, 1.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 247, 220, 0.9)";
+  ctx.strokeStyle = "rgba(23, 48, 63, 0.2)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.rect(-30, -48, 56, 28);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#17303f";
+  ctx.font = "bold 18px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("?", -2, -34);
+
+  ctx.restore();
 }
 
 function drawHunter() {
@@ -850,6 +959,63 @@ function drawHunter() {
   ctx.moveTo(25, 45);
   ctx.lineTo(31, 58);
   ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawPeacock() {
+  const peacock = { x: 324, y: worldHeight - 56 };
+  const screenY = peacock.y - state.cameraY;
+  if (screenY > canvas.height + 90 || screenY < -90) {
+    return;
+  }
+
+  ctx.save();
+  ctx.translate(peacock.x, screenY);
+
+  ctx.fillStyle = "rgba(33, 126, 118, 0.85)";
+  for (let i = 0; i < 7; i += 1) {
+    const angle = -1.2 + i * 0.4;
+    ctx.beginPath();
+    ctx.ellipse(Math.cos(angle) * 24, -18 + Math.sin(angle) * 22, 8, 24, angle, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#2371a7";
+  ctx.beginPath();
+  ctx.ellipse(0, 10, 13, 20, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#2aa1c7";
+  ctx.beginPath();
+  ctx.arc(0, -12, 9, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f0c64e";
+  ctx.beginPath();
+  ctx.moveTo(8, -12);
+  ctx.lineTo(20, -9);
+  ctx.lineTo(8, -6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#1d1d1d";
+  ctx.beginPath();
+  ctx.arc(3, -14, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 247, 220, 0.95)";
+  ctx.strokeStyle = "rgba(23, 48, 63, 0.22)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.rect(-84, -76, 96, 34);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#17303f";
+  ctx.font = "bold 16px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("A B B D", -36, -59);
 
   ctx.restore();
 }
@@ -950,6 +1116,7 @@ function draw() {
   drawBackground();
   drawNest();
   drawHunter();
+  drawPeacock();
   for (const branch of state.branches) {
     drawBranch(branch);
   }
