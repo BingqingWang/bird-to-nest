@@ -1181,35 +1181,46 @@ function drawBird() {
 }
 
 function drawBloodBar() {
-  const x = canvas.width - 24;
-  const y = 118;
-  const width = 12;
-  const segmentHeight = 30;
-  const gap = 5;
+  const x = canvas.width - 54;
+  const y = 96;
+  const width = 30;
+  const segmentHeight = 34;
+  const gap = 6;
 
   ctx.save();
-  ctx.fillStyle = "rgba(23, 48, 63, 0.45)";
-  ctx.fillRect(x - 5, y - 28, width + 10, segmentHeight * 4 + gap * 3 + 38);
+  ctx.fillStyle = "rgba(23, 48, 63, 0.72)";
+  ctx.fillRect(x - 8, y - 36, width + 16, segmentHeight * 4 + gap * 3 + 48);
 
   ctx.fillStyle = "#fff7dc";
-  ctx.font = "bold 11px Georgia, serif";
+  ctx.font = "bold 13px Georgia, serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.save();
-  ctx.translate(x + width / 2, y - 14);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText("Blood", 0, 0);
-  ctx.restore();
+  ctx.fillText("Blood", x + width / 2, y - 20);
 
   for (let i = 0; i < 4; i += 1) {
     const segmentY = y + (3 - i) * (segmentHeight + gap);
     ctx.fillStyle = i < state.bird.blood ? "#ef5562" : "rgba(255, 247, 220, 0.35)";
     ctx.fillRect(x, segmentY, width, segmentHeight);
+    ctx.strokeStyle = "#fff7dc";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, segmentY, width, segmentHeight);
+
+    if (i < state.bird.blood) {
+      ctx.fillStyle = "rgba(255, 247, 220, 0.92)";
+      ctx.beginPath();
+      ctx.arc(x + width / 2 - 5, segmentY + 14, 5, 0, Math.PI * 2);
+      ctx.arc(x + width / 2 + 5, segmentY + 14, 5, 0, Math.PI * 2);
+      ctx.moveTo(x + width / 2 - 10, segmentY + 17);
+      ctx.lineTo(x + width / 2, segmentY + 27);
+      ctx.lineTo(x + width / 2 + 10, segmentY + 17);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 
   ctx.strokeStyle = "rgba(255, 247, 220, 0.85)";
   ctx.lineWidth = 2;
-  ctx.strokeRect(x - 1, y - 1, width + 2, segmentHeight * 4 + gap * 3 + 2);
+  ctx.strokeRect(x - 3, y - 3, width + 6, segmentHeight * 4 + gap * 3 + 6);
   ctx.restore();
 }
 
