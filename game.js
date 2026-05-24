@@ -100,9 +100,9 @@ function createBranches() {
 function createEagles() {
   const eagles = [];
   const settings = {
-    easy: { regular: 5, high: 2 },
-    medium: { regular: 10, high: 6 },
-    hard: { regular: 14, high: 11 },
+    easy: { regular: 5, high: 2, speed: 0.58 },
+    medium: { regular: 10, high: 6, speed: 1 },
+    hard: { regular: 14, high: 11, speed: 1 },
   }[state.difficulty];
 
   for (let i = 0; i < settings.regular; i += 1) {
@@ -114,8 +114,8 @@ function createEagles() {
       baseY: y,
       width: 44,
       height: 24,
-      vx: fromLeft ? 90 + i * 8 : -90 - i * 8,
-      vy: i % 3 === 0 ? 92 : i % 4 === 0 ? -78 : 0,
+      vx: (fromLeft ? 90 + i * 8 : -90 - i * 8) * settings.speed,
+      vy: (i % 3 === 0 ? 92 : i % 4 === 0 ? -78 : 0) * settings.speed,
       flightBand: 150 + (i % 3) * 36,
       bob: Math.random() * Math.PI * 2,
     });
@@ -130,8 +130,8 @@ function createEagles() {
       baseY: y,
       width: 44,
       height: 24,
-      vx: fromLeft ? 132 + i * 10 : -132 - i * 10,
-      vy: i % 2 === 0 ? 86 : -92,
+      vx: (fromLeft ? 132 + i * 10 : -132 - i * 10) * settings.speed,
+      vy: (i % 2 === 0 ? 86 : -92) * settings.speed,
       flightBand: 120 + (i % 3) * 30,
       bob: Math.random() * Math.PI * 2,
     });
