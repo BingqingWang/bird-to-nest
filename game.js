@@ -69,6 +69,7 @@ function resetGame() {
     vy: 0,
     facing: 1,
     lives: 3,
+    blood: 4,
     invulnerable: 0,
   };
   updateHud();
@@ -250,8 +251,14 @@ function choosePasswordLetter(index, letter) {
 }
 
 function peckBirdAtNest() {
-  state.bird.lives -= 1;
+  state.bird.blood = Math.max(0, state.bird.blood - 1);
   state.bird.invulnerable = 1.2;
+
+  if (state.bird.blood <= 0) {
+    state.bird.lives -= 1;
+    state.bird.blood = 4;
+  }
+
   updateHud();
 
   if (state.bird.lives <= 0) {
@@ -1173,6 +1180,39 @@ function drawBird() {
   ctx.restore();
 }
 
+function drawBloodBar() {
+  const x = canvas.width - 24;
+  const y = 118;
+  const width = 12;
+  const segmentHeight = 30;
+  const gap = 5;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(23, 48, 63, 0.45)";
+  ctx.fillRect(x - 5, y - 28, width + 10, segmentHeight * 4 + gap * 3 + 38);
+
+  ctx.fillStyle = "#fff7dc";
+  ctx.font = "bold 11px Georgia, serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.save();
+  ctx.translate(x + width / 2, y - 14);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Blood", 0, 0);
+  ctx.restore();
+
+  for (let i = 0; i < 4; i += 1) {
+    const segmentY = y + (3 - i) * (segmentHeight + gap);
+    ctx.fillStyle = i < state.bird.blood ? "#ef5562" : "rgba(255, 247, 220, 0.35)";
+    ctx.fillRect(x, segmentY, width, segmentHeight);
+  }
+
+  ctx.strokeStyle = "rgba(255, 247, 220, 0.85)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 1, y - 1, width + 2, segmentHeight * 4 + gap * 3 + 2);
+  ctx.restore();
+}
+
 function draw() {
   drawBackground();
   drawNest();
@@ -1191,6 +1231,7 @@ function draw() {
   drawShots();
   drawPets();
   drawBird();
+  drawBloodBar();
 }
 
 function tick(timestamp) {
